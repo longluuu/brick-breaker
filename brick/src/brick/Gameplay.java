@@ -23,10 +23,14 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener{
 	
 	private int playerX = 310;
 	
-	private int ballposX = 220;
+	private int ballposX = 120;
 	private int ballposY = 350;
-	private int ballDirX = 1;
-	private int ballDirY = 2;
+	
+	private int ballSpeedX = -2;
+	private int ballSpeedY = -4;
+	
+	private int ballDirX = ballSpeedX;
+	private int ballDirY = ballSpeedY;
 	
 	private MapGenerator map;
 	
@@ -65,6 +69,18 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener{
 		g.setFont(new Font("serif", Font.BOLD, 20));
 		g.drawString(""+score, 15, 30);
 		
+		if (totalBricks <= 0 || score >= 24) {
+			play = false;
+			ballDirX = 0;
+			ballDirY = 0;
+			g.setColor(Color.yellow);
+			g.setFont(new Font("serif", Font.BOLD, 35));
+			g.drawString("Congratulations!", 280, 300);
+			
+			g.setColor(Color.white);
+			g.setFont(new Font("serif", Font.BOLD, 20));
+			g.drawString("Press Enter to Restart", 255, 350);
+		}
 		
 		if (ballposY > 570) {
 			play = false;
@@ -152,13 +168,31 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener{
 		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 			moveLeft();
 		}
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			if (!play) {
+				play = true;
+				
+				score = 0;
+				
+				totalBricks = 24;
+				
+				playerX = 310;
+				ballposX = 120;
+				ballposY = 350;
+				ballDirX = ballSpeedX;
+				ballDirY = ballSpeedY;
+				
+				map = new MapGenerator(3, 8);
+				repaint();
+			}
+		}
 		
 	}
 
 	private void moveRight() {
 		// TODO Auto-generated method stub
 		play = true;
-		playerX += 25;
+		playerX += 30;
 		if (playerX > 595) {
 			playerX = 595;
 		} 
@@ -167,7 +201,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener{
 	private void moveLeft() {
 		// TODO Auto-generated method stub
 		play = true;
-		playerX -= 25;
+		playerX -= 30;
 		if (playerX < 5) {
 			playerX = 5;
 		} 
