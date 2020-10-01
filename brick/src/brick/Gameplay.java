@@ -17,25 +17,24 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener{
 	private boolean play = false;
 	private int score = 0;
 	
-	private int totalBricks = 24;
+	private int totalBricks = 48;
 	private Timer timer;
 	private int delay = 8;
 	
 	private int playerX = 310;
+	private int paddleSpeed = 60;
 	
-	private int ballposX = 120;
-	private int ballposY = 350;
-	
+	private int ballposX = playerX + 45;
+	private int ballposY = 540;
 	private int ballSpeedX = -2;
 	private int ballSpeedY = -4;
-	
 	private int ballDirX = ballSpeedX;
 	private int ballDirY = ballSpeedY;
 	
 	private MapGenerator map;
 	
 	public Gameplay() {
-		map = new MapGenerator(3, 8);
+		map = new MapGenerator(6, 8);
 		addKeyListener(this);
 		setFocusable(true);
 		setFocusTraversalKeysEnabled(false);
@@ -59,30 +58,33 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener{
 		
 		// paddle
 		g.setColor(Color.green);
-		g.fillRect(playerX, 550, 100,8);
+		g.fillRect(playerX, 550, 100, 8);
 		
 		// ball
 		g.setColor(Color.yellow);
 		g.fillOval(ballposX, ballposY, 10, 10);
 		
+		// score
 		g.setColor(Color.yellow);
 		g.setFont(new Font("serif", Font.BOLD, 20));
 		g.drawString(""+score, 15, 30);
 		
-		if (totalBricks <= 0 || score >= 24) {
+		// Game Win
+		if (totalBricks <= 0 || score >= 48) {
 			play = false;
 			ballDirX = 0;
 			ballDirY = 0;
 			g.setColor(Color.yellow);
 			g.setFont(new Font("serif", Font.BOLD, 35));
-			g.drawString("Congratulations!", 280, 300);
+			g.drawString("Congratulations!", 225, 300);
 			
 			g.setColor(Color.white);
 			g.setFont(new Font("serif", Font.BOLD, 20));
 			g.drawString("Press Enter to Restart", 255, 350);
 		}
 		
-		if (ballposY > 570) {
+		// Game Loss
+		if (ballposY > 600) {
 			play = false;
 			ballDirX = 0;
 			ballDirY = 0;
@@ -94,8 +96,8 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener{
 			g.setFont(new Font("serif", Font.BOLD, 20));
 			g.drawString("Press Enter to Restart", 255, 350);
 		}
-		g.dispose();
 		
+		g.dispose();
 	}
 
 	
@@ -103,8 +105,13 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		timer.start();
 		if(play) {
-			if (new Rectangle(ballposX,ballposY, 10, 10).intersects(new Rectangle(playerX, 550, 100, 8))) {
+			// checking when ball intersects paddle and change of direction depending on side of paddle 
+			if (new Rectangle(ballposX,ballposY, 10, 10).intersects(new Rectangle(playerX, 550, 50, 8))) {
 				ballDirY = -ballDirY;
+				ballDirX = ballSpeedX;
+			} else if (new Rectangle(ballposX,ballposY, 10, 10).intersects(new Rectangle(playerX+50, 550, 50, 8))) {
+				ballDirY = -ballDirY;
+				ballDirX = -ballSpeedX;
 			}
 			
 			// iterate through every brick. first map is the object and the second is map within mapgenerator
@@ -148,6 +155,8 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener{
 			if (ballposX >= 690) {
 				ballDirX = -ballDirX;
 			}
+		} else {
+			ballposX = playerX + 45;
 		}
 		
 		repaint();
@@ -168,21 +177,28 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener{
 		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 			moveLeft();
 		}
-		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 			if (!play) {
 				play = true;
+				if (ballposY < 570) {
+					ballDirX = ballSpeedX;
+					ballDirY = ballSpeedY;
+				}
+			}
+		}
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			if (!play) {
+//				play = true;
 				
 				score = 0;
 				
-				totalBricks = 24;
+				totalBricks = 48;
 				
 				playerX = 310;
-				ballposX = 120;
-				ballposY = 350;
-				ballDirX = ballSpeedX;
-				ballDirY = ballSpeedY;
+				ballposX = playerX + 45;
+				ballposY = 540;
 				
-				map = new MapGenerator(3, 8);
+				map = new MapGenerator(6, 8);
 				repaint();
 			}
 		}
@@ -190,18 +206,14 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener{
 	}
 
 	private void moveRight() {
-		// TODO Auto-generated method stub
-		play = true;
-		playerX += 30;
+		playerX += paddleSpeed;
 		if (playerX > 595) {
 			playerX = 595;
 		} 
 	}
 
 	private void moveLeft() {
-		// TODO Auto-generated method stub
-		play = true;
-		playerX -= 30;
+		playerX -= paddleSpeed;
 		if (playerX < 5) {
 			playerX = 5;
 		} 
